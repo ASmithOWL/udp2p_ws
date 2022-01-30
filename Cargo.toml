@@ -1,0 +1,12 @@
+[workspace]
+members = [
+    "discovery",
+    "gd_udp",
+    "node",
+    "utils",
+    "udp2p",
+    "record",
+    "protocol",
+    "transport",
+    "gossip",
+]
