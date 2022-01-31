@@ -1,76 +1,68 @@
 use crate::KAD_MESSAGE_LEN;
-use node::peer_key::Key;
 use node::peer_info::PeerInfo;
+use node::peer_key::Key;
+use protocol::protocol::{
+    InnerKey, KadMessage, Message, MessageKey, Nodes, Peer, RPCBytes, RequestBytes, ResponseBytes,
+    StoreKey, Value,
+};
+use rand::{thread_rng, Rng};
 use serde::{Deserialize, Serialize};
+use std::collections::HashSet;
+use std::marker::PhantomData;
+use std::net::SocketAddr;
 use std::net::UdpSocket;
 use std::sync::mpsc::Sender;
 use std::sync::Arc;
 use udp2p::routable::Routable;
-use utils::utils::ByteRep;
 use utils::impl_ByteRep;
-use rand::{thread_rng, Rng};
-use std::net::SocketAddr;
-use std::collections::HashSet;
-use std::marker::PhantomData;
-use protocol::protocol::{Message, KadMessage, MessageKey};
+use utils::utils::ByteRep;
 
-impl_ByteRep!(for RPC, Req, Resp, Fwd);
+/// Implements ByteRep trait for RPC, Req & Resp structs so they can be
+/// represented as a vector of bytes and/or returned to their struct form
+/// with one simple function call.
+impl_ByteRep!(for RPC, Req, Resp);
 
+
+/// RPC is an enum of the different types of remote procedure calls that a
+/// kademlia instance may receive from or send to peers in the network
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum RPC {
     Ping,
-    // PeerInfo
-    NewPeer(Vec<u8>),
-    // Key -> Value
-    Store([u8; 32], Vec<u8>),
-    // PeerInfo
-    FindNode(Vec<u8>),
-    // PeerInfo
-    FindValue(Vec<u8>),
-    // Vector of u8 PeerInfo::as_bytes()
-    Nodes(Vec<Vec<u8>>),
-    // Vector of value in bytes
-    Value(Vec<u8>),
-    // Key of value saved. 
-    // Either stored value key or
-    // PeerKey
-    Saved([u8; 32]),
-    Pong(Vec<u8>),
-
+    NewPeer(Peer),
+    Store(StoreKey, Value),
+    FindNode(Peer),
+    FindValue(Value),
+    Nodes(Nodes),
+    Value(Value),
+    Saved(StoreKey),
+    Pong(Peer),
 }
 
+/// A struct that contains an RPC request, the sender of the request
+/// and an ID for the request.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Req {
-    // MessageKey::inner()
-    pub id: [u8; 32],
-    // PeerInfo::as_bytes()
-    pub sender: Vec<u8>,
-    // RPC::as_bytes()
-    pub payload: Vec<u8>,
+    pub id: InnerKey,
+    pub sender: Peer,
+    pub payload: RPCBytes,
 }
 
+/// A struct that contains an RPC response, the original request that
+/// we are responding to and the original receiver of the request.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Resp {
-    // Req::as_bytes()
-    pub request: Vec<u8>,
-    // PeerInfo::as_bytes()
-    pub receiver: Vec<u8>,
-    // RPCResponse::as_bytes()
-    pub payload: Vec<u8>,
-}
-
-#[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct Fwd {
-    // Req::as_bytes()
-    pub request: Vec<u8>,
-    pub n_fwd: usize,
-    pub n_resp: usize,
-    pub timeout: u128,
-    pub resps: Vec<Resp>,
-    pub discovered: HashSet<PeerInfo>,
+    pub request: RequestBytes,
+    pub receiver: Peer,
+    pub payload: RPCBytes,
 }
 
 impl Req {
+
+    /// Breaks down a Req struct into it's 3 individual components
+    /// and returns them from byte/inner representation to the struct
+    /// representation.
+    /// 
+    /// TODO: Conver this impl and the one for Resp into a trait
     pub fn to_components(&self) -> (MessageKey, PeerInfo, RPC) {
         let rpc = RPC::from_bytes(&self.payload);
         let sender = PeerInfo::from_bytes(&self.sender);
@@ -80,6 +72,11 @@ impl Req {
 }
 
 impl Resp {
+    /// Breaks down a Resp struct into it's 3 individual components
+    /// and returns them from byte/inner representation to the struct
+    /// representation.
+    /// 
+    /// TODO: Conver this impl and the one for Resp into a trait
     pub fn to_components(&self) -> (Req, PeerInfo, RPC) {
         let rpc = RPC::from_bytes(&self.payload);
         let receiver = PeerInfo::from_bytes(&self.receiver);
@@ -108,4 +105,3 @@ macro_rules! impl_Response {
 
 impl_Request!(for Req, RPC, KadMessage);
 impl_Response!(for Resp, RPC, KadMessage);
-

@@ -10,8 +10,6 @@ const KAD_MESSAGE_LEN: usize = 55000;
 const REQ_TIMEOUT: usize = 60_000_000_000;
 const MAX_ACTIVE_RPCS: usize = 3;
 const DEFAULT_N_PEERS: usize = 8;
-const REQUEST: &str = "Request";
-const RESPONSE: &str = "Response";
 
 #[cfg(test)]
 mod tests {
@@ -94,29 +92,6 @@ mod tests {
 
     }
 
-    // #[test]
-    // fn kad_new_works() {
-    //     let (kad, _, _) = setup(1);
-    //     assert!(kad.routing_table.size() >= 1);
-    // }
-
-    // #[test]
-    // fn kad_kbuckets_returns_vector_of_kbuckets() {
-    //     let (kad, local, peer) = setup(1);
-    //     let kbuckets = kad.kbuckets();
-    //     assert!(kbuckets.len() >= 1);
-    // }
-
-    // #[test]
-    // fn kad_kbucket_returns_single_kbucket() {
-    //     let (kad, local, peers) = setup(1);
-    //     let peer = peers[0].clone();
-    //     let local_kbucket = kad.kbucket(local.clone());
-    //     let peer_kbucket = kad.kbucket(peer.clone());
-    //     assert!(local_kbucket.contains(local));
-    //     assert!(peer_kbucket.contains(peer));
-    // }
-
     #[test]
     fn kad_get_closest_peers_works() {
         let (mut kad, local, peers) = setup(90);
@@ -134,47 +109,4 @@ mod tests {
         assert_eq!(fifty_closest_peers.len(), 50);
         
     }
-
-    // #[test]
-    // fn kad_remove_peer_works() {
-    //     let (mut kad, local, peers) = setup(5);
-    //     let peer = peers[0].clone();
-    //     let test_kad = kad.routing_table.tree.iter().any(|(k, v)| {
-    //         v.contains(peer.clone())
-    //     });
-    //     assert_eq!(test_kad, true);
-    //     assert!(kad.routing_table.size() <= 2);
-
-    //     kad.remove_peer(peer.clone());
-    //     let remove_test_kad = kad.routing_table.tree.iter().any(|(k, v)| {
-    //         v.contains(peer.clone())
-    //     });
-    //     assert_eq!(remove_test_kad, false);
-
-    // }
-    
-    // #[test]
-    // fn kad_remove_peer_address_works() {
-    //     let key = Key::rand();
-    //     let id = PeerId::from_key(&key);
-    //     let socket_address: SocketAddr = "127.0.0.1:9292".parse().expect("Unable to parse socket address");
-    //     let addresses = Some(vec![socket_address.clone()]);
-    //     let peer_info = PeerInfo::new(id, key, addresses);
-    
-    //     let new_key = Key::rand();
-    //     let new_id = PeerId::from_key(&key);
-    //     let new_socket_address: SocketAddr = "127.0.0.1:19292".parse().expect("Unable to parse socket address");
-    //     let new_addresses = Some(vec![new_socket_address.clone()]);
-    
-    //     let peer_to_add = PeerInfo::new(new_id, new_key, new_addresses);
-    //     let mut kad = Kademlia::new(peer_info);
-    //     kad.add_address(peer_to_add.clone());
-        
-    //     kad.remove_address(&peer_to_add.clone(), &new_socket_address);
-    //     assert_eq!(kad.routing_table.tree.iter().any(|(k, v)| v.contains(peer_to_add.clone())), true);
-    //     let mut cloned_tree = kad.routing_table.tree.clone();
-    //     cloned_tree.retain(|k, v| v.contains(peer_to_add.clone()));
-    //     let blank_address = cloned_tree.iter().any(|(k, bucket)| bucket.get_nodes().iter().any(|v| v.addresses == Some(vec![])));
-    //     assert!(blank_address);
-    // }
 }

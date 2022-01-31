@@ -4,6 +4,21 @@ use serde::{Deserialize, Serialize};
 
 impl_ByteRep!(for Packet, AckMessage, Message, MessageKey, Header, KadMessage);
 
+/// There are many instances where a byte
+/// representation of a given struct or enu
+/// is passed through a function or used for something
+/// To make it easier to distinguish what the byte vector
+/// is intending to represent, we have some custom types
+/// used instead of passsing in a Vec<u8> alone.
+pub type Peer = Vec<u8>;
+pub type RequestBytes = Vec<u8>;
+pub type ResponseBytes = Vec<u8>;
+pub type Value = Vec<u8>;
+pub type Nodes = Vec<Vec<u8>>;
+pub type StoreKey = [u8; 32];
+pub type InnerKey = [u8; 32];
+pub type RPCBytes = Vec<u8>;
+
 pub trait Protocol {}
 
 pub trait Packetize<'a>: ByteRep<'a> {
