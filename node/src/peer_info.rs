@@ -43,6 +43,7 @@ impl Ord for PeerInfoDistancePair {
     }
 }
 
+/// The core identifying struct for a node in the network
 #[derive(Clone, Debug, Hash, Serialize, Deserialize, Eq)]
 pub struct PeerInfo {
     pub id: PeerId,
@@ -51,6 +52,15 @@ pub struct PeerInfo {
 }
 
 impl PeerInfo {
+
+    /// Generate a new PeerInfo instance given a PeerId, Key and Socket Address
+    /// 
+    /// # Arguments
+    /// 
+    /// * id - a PeerId instance
+    /// * key - the key used to generate the PeerId
+    /// * address - the receiving socket address for the local node
+    /// 
     pub fn new(id: PeerId, key: Key, address: SocketAddr) -> Self {
         
         PeerInfo {
@@ -60,6 +70,7 @@ impl PeerInfo {
         }
     }
 
+    /// gets the local nodes's key
     pub fn get_key(&self) -> Key {
         self.key.clone()
     }

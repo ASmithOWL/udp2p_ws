@@ -11,6 +11,8 @@ use std::time::Instant;
 use rand::Rng;
 use udp2p::routable::Routable;
 
+/// A configuration struct for the user to pass different
+/// parameters into the gossip struct.
 pub struct GossipConfig {
     // Protocol ID
     id: String,
@@ -33,6 +35,9 @@ pub struct GossipConfig {
     check: usize,
 }
 
+
+/// The core gossip struct. This is the gosisp engine that handles incoming and outgoing
+/// messages, peer sampling, and other message
 pub struct GossipService {
     address: SocketAddr,
     to_gossip_rx: Receiver<(SocketAddr, Message)>,
@@ -43,10 +48,30 @@ pub struct GossipService {
     config: GossipConfig,
     heartbeat: Instant,
     ping_pong: Instant,
-    // add pending pings
+    // TODO: add pending pings
+    // to clean when received
+    // and check expired pings to
+    // remove unresponsive nodes
+    // from the routing table
 }
 
 impl GossipConfig {
+
+    /// Create a new GossipConfig Instance
+    /// 
+    /// # Arguments
+    /// 
+    /// * id - a string representing the protocol id
+    /// * history_len - the number of heartbeats to keep messages in the cache
+    /// * history_gossip - the number of heartbeats to gossip about messages
+    /// * target - the target number of peers to gossip to
+    /// * low - the minimum number of peers to maintain in routing table
+    /// * high - the maximum number of peers to maintain a 'connection' to (See Gossip Documentation)
+    /// * min_gossip - the minimum number of peers to disseminate gossip to at each heartbeat
+    /// * factor - the percentage of 'connected' peers to gossip to
+    /// * interval - the length of a heartbeat
+    /// * check - the number of heartbeats between sending ping messages
+    /// 
     pub fn new(
         id: String,
         history_len: usize,
@@ -73,16 +98,32 @@ impl GossipConfig {
         }
     }
 
+    /// Return the minimum number of peers to gossip to
     pub fn min(&self) -> usize {
         self.min_gossip
     }
 
+    /// Return the maximum number of peers to maintain a 'connection' with.
     pub fn max(&self) -> usize {
         self.high
     }
 }
 
 impl GossipService {
+
+    /// Creates a new instance of GossipService
+    /// 
+    /// # Arguments
+    /// 
+    /// * address - the local node's socket address
+    /// * to_gossip_rx - the receiver for the gossip service to accept incoming messages from the transport layer to
+    /// * to_transport_tx - the sender used for sending messages to the transport layer
+    /// * to_app_tx - a sender to send to apps that this create is integrated into
+    /// * kad - a kademlia dht used as a peer discovery routing table 
+    /// * config - a GossipConfig instance that contains configuration information for the local gossip instance
+    /// * heartbeat - the time of the last heartbeat
+    /// * ping_pong - the time of the last ping message sent
+    /// 
     pub fn new(
         address: SocketAddr,
         to_gossip_rx: Receiver<(SocketAddr, Message)>,
@@ -106,6 +147,7 @@ impl GossipService {
         }
     }
 
+    /// The main gossip service loop
     pub fn start(&mut self) {
         loop {
             self.kad.recv();
@@ -114,6 +156,8 @@ impl GossipService {
         }
     }
 
+    /// Checks whether enough time has passed to be considered a heartbeat
+    /// returns true or false
     pub fn heartbeat(&mut self) -> bool {
         let now = Instant::now();
         if now.duration_since(self.heartbeat) > self.config.interval {
@@ -123,6 +167,7 @@ impl GossipService {
         false 
     }
 
+    /// Dissemenates messages that are still "alive" and in the message cache.
     pub fn gossip(&mut self) {
         let now = Instant::now();
         let cache_clone = self.cache.clone();
@@ -145,6 +190,13 @@ impl GossipService {
         }
     }
 
+    /// Forwards a message and an intended destination address to the transport layer
+    /// 
+    /// # Arguments
+    /// 
+    /// * src - the destination socket address
+    /// * message - a Message to be packetized and forwarded to the destination
+    /// 
     pub fn publish(&mut self, src: &SocketAddr, message: Message) {
         let local = self.kad.routing_table.local_info.clone();
         let gossip_to = {
@@ -183,10 +235,21 @@ impl GossipService {
         });
     }
 
+
+    /// handles an incoming message by placing it in the cache and forwarding to peers
+    /// if it is not already in the cache. If it is already in the cache it is ignored
+    /// If the protocol is 'chat' and the source is not the local node it prints the message
+    /// 
+    /// # Arguments
+    /// 
+    /// * src - the sender of the incoming message
+    /// * msg - the incoming message to be handled
+    /// 
     fn handle_message(&mut self, src: &SocketAddr, msg: &Message) {
         let message = GossipMessage::from_bytes(&msg.msg);
         if !self.cache.contains_key(&MessageKey::from_inner(message.id)) {
             if *src != self.address {
+                // TODO: Only print if the protocol id is "chat"
                 println!("Received message from {:?}", src);
                 let string = String::from_utf8_lossy(&message.data);
                 println!("{:?}", string);
@@ -200,6 +263,7 @@ impl GossipService {
         }
     }
 
+    /// receives messages coming into the "to_gossip_rx"
     pub fn recv(&mut self) {
         let res = self.to_gossip_rx.try_recv();
         match res {

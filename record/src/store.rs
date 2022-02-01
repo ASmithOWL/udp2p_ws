@@ -6,6 +6,9 @@ use node::peer_id::PeerId;
 use node::peer_info::PeerInfo;
 use std::error::Error;
 
+/// A trait applied to any kind of key value storing
+/// struct that is used to maintain records and providers
+/// of those records for a peer to peer network.
 pub trait Store {
     type Record;
     type Provision;

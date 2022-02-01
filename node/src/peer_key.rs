@@ -7,22 +7,28 @@ use std::fmt::Binary;
 
 impl_ByteRep!(for Key);
 
+/// A tuple struct containing a u8 array representation of a 256 bit key
 #[derive(Ord, PartialOrd, PartialEq, Eq, Clone, Hash, Serialize, Deserialize, Default, Copy, Debug)]
 pub struct Key([u8; 32]);
 
 impl Key {
+
+    /// Generates a new key given the inner array
     pub fn new(v: [u8; 32]) -> Self {
         Key(v)
     }
 
+    /// Generates a key from a slice of u8 bytes
     pub fn from_slice(v: &[u8]) -> Key {
         serde_json::from_slice(v).unwrap()
     }
 
+    /// gets the inner array of u8 bytes
     pub fn get_key(&self) -> [u8; 32] {
         self.0
     }
 
+    /// generates a random key
     pub fn rand() -> Self {
         let mut ret = Key([0; 32]);
         ret.0.iter_mut().for_each(|k| {
@@ -32,6 +38,7 @@ impl Key {
         ret
     }
 
+    /// generates a random key within a range
     pub fn rand_in_range(idx: usize) -> Self {
         let mut ret = Key::rand();
         let bytes = idx / 8;
@@ -45,10 +52,17 @@ impl Key {
         ret
     }
 
+    /// gets the binary string representation of the key's inner byte array
     pub fn get_binary(&self) -> String {
         format!("{:b}", self)
     }
 
+    /// returns a subset of the binary representation of the key
+    /// 
+    /// # Arguments
+    /// 
+    /// * size - the length of the prefix to return
+    /// 
     pub fn get_prefix(&self, size: usize) -> String {
         let binary = self.get_binary();
         let mut prefix = String::new();

@@ -2,24 +2,39 @@ use std::collections::{HashMap, HashSet};
 use std::net::{SocketAddr, UdpSocket};
 use std::sync::Arc;
 use std::time::{Duration, Instant};
-use protocol::protocol::Packet;
+use protocol::protocol::{InnerKey, Packet, AddressBytes, Packets};
 use utils::utils::ByteRep;
 
-
+/// A pseudo-guaranteed deliver wrapper for UDP sockets to ensure that
+/// packets are either delivered, or are resent to the destination.
+/// Recieves the local socket address, a cache of messages received
+/// an outbox for messages sent that require a return receipt.
+/// The outbox is the main field in the struct, each message sent is stored with the
+/// id and a hashmap of key == packet number, value = quaduple of a set of destinations
+/// set of returned receipts, the packets, and the number attempts. The timer is used to to 
+/// determine whether enough time has passed to attempt to resend unacknowledged packets.
 #[derive(Debug, Clone)]
 pub struct GDUdp {
     pub addr: SocketAddr,
-    pub message_cache: HashSet<[u8; 32]>,
-    pub outbox: HashMap<[u8; 32], HashMap<usize, (HashSet<SocketAddr>, HashSet<SocketAddr>, Packet, usize)>>,
+    pub message_cache: HashSet<InnerKey>,
+    pub outbox: HashMap<InnerKey, HashMap<usize, (HashSet<SocketAddr>, HashSet<SocketAddr>, Packet, usize)>>,
     pub timer: Instant,
     pub log: String,
 }
 
 impl GDUdp {
+    /// The 3 constants are used by the GDUDP to determine if a message
+    /// needs to be resent.
     pub const MAINTENANCE: Duration = Duration::from_millis(300);
     pub const RETURN_RECEIPT: u8 = 1u8;
     pub const NO_RETURN_RECEIPT: u8 = 0u8;
 
+    /// Generates a new GDUDP instance given a socket address
+    /// 
+    /// # Arguments
+    /// 
+    /// * addr - the local nodes socket address
+    /// 
     pub fn new(addr: SocketAddr) -> GDUdp {
         GDUdp {
             addr,
@@ -30,6 +45,16 @@ impl GDUdp {
         }
     }
 
+    /// Loops through the outbox and resends packets that haven't been acknowldged
+    /// and tracks the number of attempts.
+    /// TODO: 
+    /// 
+    /// add a GDUDPConfig struct that contains config information like number of attempts
+    /// before giving up on a given packet, maintenance duration, etc
+    /// 
+    /// # Arguments
+    /// 
+    /// * sock - the UDP socket for the local node used to resend unacknowldged packets.
     pub fn maintain(&mut self, sock: &UdpSocket) {
         self.outbox.retain(|_, map| {
             map.retain(|_, (sent_set, ack_set, _, attempts)| sent_set != ack_set && *attempts < 5);
@@ -48,6 +73,15 @@ impl GDUdp {
         });
     }
 
+    /// Receives incoming messages from a given udp socket
+    /// used only in apps that choose not to implement a transport layer
+    /// it is highly recommended that a transport layer is used for this crate to integrate with
+    /// p2p apps
+    /// 
+    /// # Arguments
+    /// 
+    /// * sock - a UDP socket to receive messages on
+    /// * buf - a buffer to write incoming message bytes to.
     pub fn recv_from(
         &mut self,
         sock: Arc<UdpSocket>,
@@ -59,6 +93,13 @@ impl GDUdp {
         }
     }
 
+    /// Checks the amount of time that has passed since the last maintenance of the outbox
+    /// and calls maintain if it's time to maintain the outbox.
+    /// 
+    /// # Arguments
+    /// 
+    /// * sock - UDP socket to pass into the maintain function call
+    ///  
     pub fn check_time_elapsed(&mut self, sock: &UdpSocket) {
         let now = Instant::now();
         let time_elapsed = now.duration_since(self.timer);
@@ -70,7 +111,15 @@ impl GDUdp {
         }
     }
 
-    pub fn process_ack(&mut self, id: [u8; 32], packet_number: usize, src: Vec<u8>) {
+    /// Processes an acknowldgement message
+    /// 
+    /// # Arguments
+    /// 
+    /// * id - the InnerKey of the message being acknowledged
+    /// * packet_number - the packet number being acknowledged
+    /// * src - the node that's acknowledging receipt of the packet
+    /// 
+    pub fn process_ack(&mut self, id: InnerKey, packet_number: usize, src: AddressBytes) {
         let src = String::from_utf8_lossy(&src);
         let src = src.parse().expect("Unable to parse socket address");
         if let Some(map) = self.outbox.get_mut(&id) {
@@ -80,6 +129,14 @@ impl GDUdp {
         }
     }
 
+    /// Sends a message with a return receipt requested to a peer in the network
+    /// 
+    /// # Arguments
+    /// 
+    /// * peer - the destination address
+    /// * packet - the packet to send
+    /// * sock - the UDP socket to send the message out on
+    /// 
     pub fn send_reliable(
         &mut self,
         peer: &SocketAddr,
@@ -110,7 +167,14 @@ impl GDUdp {
             .expect("Error sending packet to peer");
     }
 
-    pub fn ack(&mut self, sock: &UdpSocket, peer: &SocketAddr, packets: Vec<Packet>) {
+    /// Sends an acknowledgement message to the sender of a packet with a return receipt requested
+    /// 
+    /// # Arguments
+    /// 
+    /// * sock - the socket to send the packets on
+    /// * peer - the destination address
+    /// * packets - a vector of packets
+    pub fn ack(&mut self, sock: &UdpSocket, peer: &SocketAddr, packets: Packets) {
         packets.iter().for_each(|packet| {
             sock.send_to(&packet.as_bytes(), peer)
                 .expect("Unable to send message to peer");

@@ -1,6 +1,9 @@
 use std::time::{SystemTime, UNIX_EPOCH};
 use serde::{Serialize, Deserialize};
 
+pub type Timestamp = u128;
+/// A trait for measuring XOR distance
+/// TODO: add a binary function and a prefix function
 pub trait Distance {
     type Output;
 
@@ -9,12 +12,15 @@ pub trait Distance {
     fn leading_ones(&self) -> usize {0}
 }
 
+/// A trait for converting a type that implements Serialize + Deserialize
+/// to a vector of bytes and from an array of bytes back into the type.
 pub trait ByteRep<'a>: Serialize + Deserialize<'a> {
     fn as_bytes(&self) -> Vec<u8>;
     fn from_bytes(v: &[u8]) -> Self;
 }
 
-pub fn timestamp_now() -> u128 {
+/// Get the current unix timestamp in nanoseconds
+pub fn timestamp_now() -> Timestamp {
     SystemTime::now().duration_since(UNIX_EPOCH).expect("Error getting_timestamp").as_nanos()
 }
 
