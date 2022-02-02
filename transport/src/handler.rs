@@ -61,8 +61,9 @@ impl MessageHandler {
         let res = sock.recv_from(buf);
         match res {
             Ok((amt, src)) => {
-                let packet = self.process_packet(local, buf.to_vec(), amt, src);
-                self.insert_packet(packet, src)
+                if let Some(packet) = self.process_packet(local, buf.to_vec(), amt, src) {
+                    self.insert_packet(packet, src)
+                }
             }
             Err(_) => {}
         }
@@ -77,26 +78,27 @@ impl MessageHandler {
     /// * amt - the number of bytes received by the socket
     /// * src - the sender of the message
     /// 
-    pub fn process_packet(&self, local: SocketAddr, buf: Vec<u8>, amt: usize, src: SocketAddr) -> Packet {
-        let packet = Packet::from_bytes(&buf[..amt]);
-        if packet.ret == GDUdp::RETURN_RECEIPT {
-            let ack = AckMessage {
-                packet_id: packet.id,
-                packet_number: packet.n,
-                src: local.to_string().as_bytes().to_vec()
-            };
-            let header = Header::Ack;
-            let message = Message {
-                head: header,
-                msg: ack.as_bytes()
-            };
+    pub fn process_packet(&self, local: SocketAddr, buf: Vec<u8>, amt: usize, src: SocketAddr) -> Option<Packet> {
+        if let Some(packet) = Packet::from_bytes(&buf[..amt]){
+            if packet.ret == GDUdp::RETURN_RECEIPT {
+                let ack = AckMessage {
+                    packet_id: packet.id,
+                    packet_number: packet.n,
+                    src: local.to_string().as_bytes().to_vec()
+                };
+                let header = Header::Ack;
+                let message = Message {
+                    head: header,
+                    msg: ack.as_bytes().unwrap()
+                };
 
-            if let Err(_) = self.om_tx.clone().send((src, message)) {
-                println!("Error sending ack message to transport thread");
+                if let Err(_) = self.om_tx.clone().send((src, message)) {
+                    println!("Error sending ack message to transport thread");
+                }
             }
-        }
-
-        return packet
+        return Some(packet)
+    }
+        None 
     }
 
     /// Inserts a packet into the pending table, and checks if all the packets for the message they're dervied
@@ -112,14 +114,16 @@ impl MessageHandler {
             map.entry(packet.n).or_insert(packet.clone());
             self.pending.insert(packet.id, map.clone());
             if map.len() == packet.total_n {
-                let message = self.assemble_packets(packet.clone(), map.clone());
-                self.handle_message(message, src);
+                if let Some(message) = self.assemble_packets(packet.clone(), map.clone()) {
+                    self.handle_message(message, src);
+                }
             }
         } else {
             if packet.total_n == 1 {
                 let bytes = hex::decode(&packet.bytes).unwrap();
-                let message = Message::from_bytes(&bytes);
-                self.handle_message(message, src);
+                if let Some(message) = Message::from_bytes(&bytes) {
+                    self.handle_message(message, src);
+                }
             } else {
                 let mut map = HashMap::new();
                 map.insert(packet.n, packet.clone());
@@ -135,7 +139,7 @@ impl MessageHandler {
     /// * packet - the final packet received, used to get the total number of packets
     /// * map - the map of all the bytes for the message that needs to be assembled
     /// 
-    fn assemble_packets(&self, packet: Packet, map: HashMap<usize, Packet>) -> Message {
+    fn assemble_packets(&self, packet: Packet, map: HashMap<usize, Packet>) -> Option<Message> {
         let mut bytes = vec![];
         (1..=packet.total_n)
             .into_iter()
@@ -156,16 +160,18 @@ impl MessageHandler {
     fn handle_message(&self, message: Message, src: SocketAddr) {
         match message.head {
             Header::Request | Header::Response => {
-                let msg = KadMessage::from_bytes(&message.msg);
-                if let Err(_) = self.kad_tx.send((src, msg)) {
-                    println!("Error sending to kad");
+                if let Some(msg) = KadMessage::from_bytes(&message.msg) {
+                    if let Err(_) = self.kad_tx.send((src, msg)) {
+                        println!("Error sending to kad");
+                    }
                 }
             }
             Header::Ack => {
-                let ack = AckMessage::from_bytes(&message.msg);
-                if let Err(_) = self.ia_tx.send(ack) {
-                    println!("Error sending ack message")
-                }
+                if let Some(ack) = AckMessage::from_bytes(&message.msg) {
+                    if let Err(_) = self.ia_tx.send(ack) {
+                        println!("Error sending ack message")
+                    }
+                }                
             }
             Header::Gossip => {
                 if let Err(_) = self.gossip_tx.send((src, message)) {

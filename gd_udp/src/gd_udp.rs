@@ -163,8 +163,10 @@ impl GDUdp {
             map.insert(packet.n, (sent_set, ack_set, packet.clone(), attempts));
             self.outbox.insert(packet.id, map);
         }
-        sock.send_to(&packet.as_bytes(), peer)
-            .expect("Error sending packet to peer");
+        if let Some(bytes) = packet.as_bytes() {
+            sock.send_to(&bytes, peer)
+                .expect("Error sending packet to peer");
+        }
     }
 
     /// Sends an acknowledgement message to the sender of a packet with a return receipt requested
@@ -176,8 +178,10 @@ impl GDUdp {
     /// * packets - a vector of packets
     pub fn ack(&mut self, sock: &UdpSocket, peer: &SocketAddr, packets: Packets) {
         packets.iter().for_each(|packet| {
-            sock.send_to(&packet.as_bytes(), peer)
-                .expect("Unable to send message to peer");
+            if let Some(bytes) = packet.as_bytes() {
+                sock.send_to(&bytes, peer)
+                    .expect("Unable to send message to peer");
+            }
         })
     }
 

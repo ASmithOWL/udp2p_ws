@@ -104,9 +104,13 @@ fn main() {
     if let Some(to_dial) = args().nth(1) {
         let bootstrap: SocketAddr = to_dial.parse().expect("Unable to parse address");
         gossip.kad.bootstrap(&bootstrap);
-        gossip.kad.add_peer(info.as_bytes());
+        if let Some(bytes) = info.as_bytes() {
+            gossip.kad.add_peer(bytes)
+        }
     } else {
-        gossip.kad.add_peer(info.as_bytes())
+        if let Some(bytes) = info.as_bytes() {
+            gossip.kad.add_peer(bytes)
+        }
     }
 
     let thread_to_gossip = to_gossip_tx.clone();
@@ -124,7 +128,7 @@ fn main() {
 
                 let message = Message {
                     head: Header::Gossip,
-                    msg: msg.as_bytes()
+                    msg: msg.as_bytes().unwrap()
                 };
 
                 if let Err(_) = thread_to_gossip.clone().send((addr.clone(), message)) {

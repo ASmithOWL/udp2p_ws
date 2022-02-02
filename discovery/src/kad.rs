@@ -89,7 +89,7 @@ impl Kademlia {
     /// * peer - a Byte Representation of a PeerInfo struct.
     /// 
     pub fn add_peer(&mut self, peer: Peer) {
-        let peer = PeerInfo::from_bytes(&peer);
+        let peer = PeerInfo::from_bytes(&peer).unwrap();
         self.routing_table.update_peer(&peer, 0);
     }
 
@@ -108,7 +108,7 @@ impl Kademlia {
         if let Err(e) = self.to_transport.send((bootstrap.clone(), message)) {
             println!("Error sending to transport");
         }
-        self.add_peer(self.routing_table.local_info.clone().as_bytes());
+        self.add_peer(self.routing_table.local_info.clone().as_bytes().unwrap());
     }
 
     /// Structures and returns a nodes response message, i.e. a response to a find nodes request
@@ -123,18 +123,18 @@ impl Kademlia {
         req: Req,
         nodes: Vec<PeerInfo>,
     ) -> Message {
-        let nodes_vec: Nodes = nodes.iter().map(|peer| peer.as_bytes()).collect();
+        let nodes_vec: Nodes = nodes.iter().map(|peer| peer.as_bytes().unwrap()).collect();
         let local_info = self.routing_table.local_info.clone();
         let rpc: RPC = RPC::Nodes(nodes_vec);
         let resp = Resp {
-            request: req.as_bytes(),
-            receiver: local_info.as_bytes(),
-            payload: rpc.as_bytes(),
+            request: req.as_bytes().unwrap(),
+            receiver: local_info.as_bytes().unwrap(),
+            payload: rpc.as_bytes().unwrap(),
         };
 
         let msg = Message {
             head: Header::Response,
-            msg: KadMessage::Response(resp.as_bytes()).as_bytes(),
+            msg: KadMessage::Response(resp.as_bytes().unwrap()).as_bytes().unwrap(),
         };
 
         msg
@@ -155,23 +155,23 @@ impl Kademlia {
         if let Some(opt_req) = req {
             let message = Message {
                 head: Header::Request,
-                msg: KadMessage::Request(opt_req.as_bytes()).as_bytes(),
+                msg: KadMessage::Request(opt_req.as_bytes().unwrap()).as_bytes().unwrap(),
             };
 
             return (MessageKey::from_inner(opt_req.id), message);
         }
 
         let local_info = self.routing_table.local_info.clone();
-        let rpc: RPC = RPC::FindNode(peer.as_bytes());
+        let rpc: RPC = RPC::FindNode(peer.as_bytes().unwrap());
         let req: Req = Req {
             id: MessageKey::rand().inner(),
-            sender: local_info.as_bytes(),
-            payload: rpc.as_bytes(),
+            sender: local_info.as_bytes().unwrap(),
+            payload: rpc.as_bytes().unwrap(),
         };
 
         let msg = Message {
             head: Header::Request,
-            msg: KadMessage::Request(req.as_bytes()).as_bytes(),
+            msg: KadMessage::Request(req.as_bytes().unwrap()).as_bytes().unwrap(),
         };
         (MessageKey::from_inner(req.id), msg)
     }
@@ -187,16 +187,16 @@ impl Kademlia {
     /// * peer - the new peer discovered.
     pub fn prepare_new_peer_message(&self, peer: PeerInfo) -> (MessageKey, Message) {
         let local_info = self.routing_table.local_info.clone();
-        let rpc: RPC = RPC::NewPeer(peer.as_bytes());
+        let rpc: RPC = RPC::NewPeer(peer.as_bytes().unwrap());
         let req: Req = Req {
             id: MessageKey::rand().inner(),
-            sender: local_info.as_bytes(),
-            payload: rpc.as_bytes(),
+            sender: local_info.as_bytes().unwrap(),
+            payload: rpc.as_bytes().unwrap(),
         };
 
         let msg = Message {
             head: Header::Request,
-            msg: KadMessage::Request(req.as_bytes()).as_bytes(),
+            msg: KadMessage::Request(req.as_bytes().unwrap()).as_bytes().unwrap(),
         };
         (MessageKey::from_inner(req.id), msg)
     }
@@ -207,13 +207,13 @@ impl Kademlia {
         let rpc: RPC = RPC::Ping;
         let req: Req = Req {
             id: MessageKey::rand().inner(),
-            sender: local_info.as_bytes(),
-            payload: rpc.as_bytes(),
+            sender: local_info.as_bytes().unwrap(),
+            payload: rpc.as_bytes().unwrap(),
         };
 
         let msg = Message {
             head: Header::Request,
-            msg: KadMessage::Request(req.as_bytes()).as_bytes(),
+            msg: KadMessage::Request(req.as_bytes().unwrap()).as_bytes().unwrap(),
         };
         (MessageKey::from_inner(req.id), msg)
     }
@@ -226,16 +226,16 @@ impl Kademlia {
     /// * req - the original ping request
     /// 
     pub fn prepare_pong_response(&self, peer: &PeerInfo, req: Req) -> Message {
-        let rpc = RPC::Pong(self.routing_table.local_info.as_bytes());
+        let rpc = RPC::Pong(self.routing_table.local_info.as_bytes().unwrap());
         let resp = Resp {
-            request: req.as_bytes(),
-            receiver: peer.as_bytes(),
-            payload: rpc.as_bytes(),
+            request: req.as_bytes().unwrap(),
+            receiver: peer.as_bytes().unwrap(),
+            payload: rpc.as_bytes().unwrap(),
         };
 
         let msg = Message {
             head: Header::Response,
-            msg: KadMessage::Response(resp.as_bytes()).as_bytes(),
+            msg: KadMessage::Response(resp.as_bytes().unwrap()).as_bytes().unwrap(),
         };
 
         msg
@@ -255,50 +255,55 @@ impl Kademlia {
     /// 
     fn handle_request(&mut self, req: &RequestBytes) {
         let req_msg = Req::from_bytes(&req);
-        let (id, sender, rpc) = req_msg.to_components();
-        self.add_peer(sender.as_bytes());
-        match rpc {
-            RPC::FindNode(node) => {
-                let peer = PeerInfo::from_bytes(&node);
-                self.lookup_node(peer, req_msg.clone());
-            }
-            RPC::NewPeer(peer) => {
-                self.add_peer(peer);
-            }
-            RPC::FindValue(value) => {
-                // TODO:
-                //
-                // Check if you are a provider
-                // if so respond with the value
-                // if not, check if you know a provider
-                // if so, request the value from the provider
-                // if not then find the closest peers to the key
-                // and respond with a nodes message.
-                // Change response handler to be able to handle the
-                // case of a nodes response to a FindValue request.
-            }
-            RPC::Store(key, value) => {
-                // TODO:
-                //
-                // Add to record store, respond with
-                // Saved response with the key for this record
-                // so that the receiving node can add you as a
-                // provider of the value.
-            }
-            RPC::Ping => {
-                // Send pong response
-                let resp_msg = self.prepare_pong_response(&sender, req_msg);
-                if let Err(e) = self
-                    .to_transport
-                    .send((sender.address.clone(), resp_msg.clone()))
-                {
-                    println!("Error sending to transport: {:?}", e);
+        if let Some(request) = req_msg {
+            let (id, sender, rpc) = request.to_components();
+            self.add_peer(sender.clone().unwrap().as_bytes().unwrap());
+            match rpc.unwrap() {
+                RPC::FindNode(node) => {
+                    let peer = PeerInfo::from_bytes(&node);
+                    if let Some(peer) = peer {
+                        self.lookup_node(peer, request.clone());
+                    }
+                }
+                RPC::NewPeer(peer) => {
+                    self.add_peer(peer);
+                }
+                RPC::FindValue(value) => {
+                    // TODO:
+                    //
+                    // Check if you are a provider
+                    // if so respond with the value
+                    // if not, check if you know a provider
+                    // if so, request the value from the provider
+                    // if not then find the closest peers to the key
+                    // and respond with a nodes message.
+                    // Change response handler to be able to handle the
+                    // case of a nodes response to a FindValue request.
+                }
+                RPC::Store(key, value) => {
+                    // TODO:
+                    //
+                    // Add to record store, respond with
+                    // Saved response with the key for this record
+                    // so that the receiving node can add you as a
+                    // provider of the value.
+                }
+                RPC::Ping => {
+                    // Send pong response
+                    let resp_msg = self.prepare_pong_response(&sender.clone().unwrap(), request);
+                    if let Err(e) = self
+                        .to_transport
+                        .send((sender.unwrap().address.clone(), resp_msg.clone()))
+                    {
+                        println!("Error sending to transport: {:?}", e);
+                    }
+                }
+                _ => {
+                    self.handle_response(req);
                 }
             }
-            _ => {
-                self.handle_response(req);
-            }
         }
+
     }
 
     /// The mirror image of the handle request function, this function does the "heavy lifting"
@@ -310,53 +315,61 @@ impl Kademlia {
     /// 
     fn handle_response(&mut self, resp: &ResponseBytes) {
         let resp_msg = Resp::from_bytes(&resp);
-        let (req, receiver, rpc) = resp_msg.to_components();
-        let (id, sender, req_rpc) = req.to_components();
-        let mut complete = false;
-        match rpc {
-            RPC::Nodes(nodes) => {
-                // TOOD:
-                //
-                // match req.
-                // IF req is a FindNode
-                // then proceed with the below functionality
-                nodes.iter().for_each(|peer| {
-                    let peer_info = PeerInfo::from_bytes(&peer);
-                    let new = self.routing_table.is_new(&peer_info);
-                    self.add_peer(peer.clone());
-                    if new {
-                        self.bootstrap(&peer_info.get_address());
+        if let Some(rm) = resp_msg {
+            let (req, receiver, rpc) = rm.to_components();
+            if let Some(request) = req {
+                let (id, sender, req_rpc) = request.to_components();
+                let mut complete = false;
+                match rpc.unwrap() {
+                    RPC::Nodes(nodes) => {
+                        // TOOD:
+                        //
+                        // match req.
+                        // IF req is a FindNode
+                        // then proceed with the below functionality
+                        nodes.iter().for_each(|peer| {
+                            let peer_info = PeerInfo::from_bytes(&peer);
+                            if let Some(info) = peer_info {
+                                let new = self.routing_table.is_new(&info);
+                                self.add_peer(peer.clone());
+                                if new {
+                                    self.bootstrap(&info.get_address());
+                                }
+                            }
+                        })
+                        // TODO:
+                        //
+                        // IF the req is a FindValue then
+                        // attempt to find the value from the new
+                        // nodes received. This means that the
+                        // peer you requested the value from
+                        // didn't have it and didn't know any
+                        // providers of it, so they sent you
+                        // the closest nodes they know of to
+                        // the value.
+                        // If
                     }
-                })
-                // TODO:
-                //
-                // IF the req is a FindValue then
-                // attempt to find the value from the new
-                // nodes received. This means that the
-                // peer you requested the value from
-                // didn't have it and didn't know any
-                // providers of it, so they sent you
-                // the closest nodes they know of to
-                // the value.
-                // If
+                    RPC::Value(value) => {}
+                    RPC::Saved(key) => {}
+                    RPC::Pong(peer) => {
+                        // TODO:
+                        // 
+                        // Check pending requests to ensure
+                        // the Ping request isn't expired
+                        // If it hadn't expired then
+                        // The peer is still alive
+                        // keep them in the routing table and update
+                        // the routing table to move them to the back
+                        // as the LRU
+                        self.add_peer(peer)
+                    }
+                    _ => {
+                        self.handle_request(resp);
+                    }
+                }
+
             }
-            RPC::Value(value) => {}
-            RPC::Saved(key) => {}
-            RPC::Pong(peer) => {
-                // TODO:
-                // 
-                // Check pending requests to ensure
-                // the Ping request isn't expired
-                // If it hadn't expired then
-                // The peer is still alive
-                // keep them in the routing table and update
-                // the routing table to move them to the back
-                // as the LRU
-                self.add_peer(peer)
-            }
-            _ => {
-                self.handle_request(resp);
-            }
+
         }
     }
 
@@ -399,7 +412,9 @@ impl Kademlia {
         let (_, sender, rpc) = req.to_components();
         // TODO: check if the peer is a new peer, if so then send a new peer message
         // if not then don't worry about it.
-        self.add_peer(node.as_bytes());
+        if let Some(bytes) = node.as_bytes() {
+            self.add_peer(bytes);
+        }
         let (id, msg) = self.prepare_new_peer_message(node.clone());
         let resp_msg =
             self.prepare_nodes_response_message(req.clone(), closest_peers.clone());

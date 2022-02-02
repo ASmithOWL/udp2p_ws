@@ -174,9 +174,10 @@ impl GossipService {
         if self.heartbeat() {
             cache_clone.iter().for_each(|(key, (message, expires))| {
                 if now.duration_since(*expires) < self.config.interval * self.config.history_gossip as u32 {
-                    let gossip_message = GossipMessage::from_bytes(&message.msg);
-                    let src = gossip_message.sender;
-                    self.publish(&src, message.clone())     
+                    if let Some(gossip_message) = GossipMessage::from_bytes(&message.msg) {
+                        let src = gossip_message.sender;
+                        self.publish(&src, message.clone())     
+                    }
                 }
                 if now.duration_since(*expires) > self.config.interval * self.config.history_len as u32 {
                     self.cache.remove(&key);
@@ -246,20 +247,18 @@ impl GossipService {
     /// * msg - the incoming message to be handled
     /// 
     fn handle_message(&mut self, src: &SocketAddr, msg: &Message) {
-        let message = GossipMessage::from_bytes(&msg.msg);
-        if !self.cache.contains_key(&MessageKey::from_inner(message.id)) {
-            if *src != self.address {
-                // TODO: Only print if the protocol id is "chat"
-                println!("Received message from {:?}", src);
-                let string = String::from_utf8_lossy(&message.data);
-                println!("{:?}", string);
+        if let Some(message) = GossipMessage::from_bytes(&msg.msg){
+            if !self.cache.contains_key(&MessageKey::from_inner(message.id)) {
+                if *src != self.address {
+                    // TODO: Only print if the protocol id is "chat"
+                    println!("Received message from {:?}", src);
+                    let string = String::from_utf8_lossy(&message.data);
+                    println!("{:?}", string);
+                }
+                let key = MessageKey::from_inner(message.id);
+                self.publish(src, msg.clone());
+                self.cache.entry(key).or_insert((msg.clone(), Instant::now()));
             }
-            let key = {
-                let gossip_mesasge = GossipMessage::from_bytes(&msg.msg);
-                MessageKey::from_inner(gossip_mesasge.id)
-            };
-            self.publish(src, msg.clone());
-            self.cache.entry(key).or_insert((msg.clone(), Instant::now()));
         }
     }
 

@@ -15,8 +15,8 @@ pub trait Distance {
 /// A trait for converting a type that implements Serialize + Deserialize
 /// to a vector of bytes and from an array of bytes back into the type.
 pub trait ByteRep<'a>: Serialize + Deserialize<'a> {
-    fn as_bytes(&self) -> Vec<u8>;
-    fn from_bytes(v: &[u8]) -> Self;
+    fn as_bytes(&self) -> Option<Vec<u8>>;
+    fn from_bytes(v: &[u8]) -> Option<Self>;
 }
 
 /// Get the current unix timestamp in nanoseconds
@@ -28,11 +28,17 @@ pub fn timestamp_now() -> Timestamp {
 macro_rules! impl_ByteRep {
     (for $($t:ty), +) => {
         $(impl<'a> ByteRep<'a> for $t {
-            fn as_bytes(&self) -> Vec<u8> {
-                serde_json::to_string(&self).unwrap().as_bytes().to_vec()
+            fn as_bytes(&self) -> Option<Vec<u8>> {
+                match serde_json::to_string(&self) {
+                    Ok(string) => Some(string.as_bytes().to_vec()),
+                    Err(_) => None
+                }
             }
-            fn from_bytes(v: &[u8]) -> Self {
-                serde_json::from_slice(v).unwrap()
+            fn from_bytes(v: &[u8]) -> Option<Self> {
+                match serde_json::from_slice(v) {
+                    Ok(s) => Some(s),
+                    Err(_) => None
+                }
             }
         })*
     };

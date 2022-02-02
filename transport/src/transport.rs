@@ -64,14 +64,14 @@ impl Transport {
             Ok((src, msg)) => match msg.head {
                 Header::Ack => {
                     let packets_id = MessageKey::rand().inner();
-                    let packets = packetize(msg.as_bytes().clone(), packets_id, 0u8);
+                    let packets = packetize(msg.as_bytes().unwrap().clone(), packets_id, 0u8);
                     packets.iter().for_each(|packet| {
-                        if let Err(_) = sock.send_to(&packet.as_bytes(), src) {}
+                        if let Err(_) = sock.send_to(&packet.as_bytes().unwrap(), src) {}
                     });
                 }
                 _ => {
                     let packets_id = MessageKey::rand().inner();
-                    let packets = packetize(msg.as_bytes().clone(), packets_id, 1u8);
+                    let packets = packetize(msg.as_bytes().unwrap().clone(), packets_id, 1u8);
                     packets.iter().for_each(|packet| {
                         self.gd_udp.send_reliable(&src, packet, &sock);
                     });

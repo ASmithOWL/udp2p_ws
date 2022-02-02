@@ -63,7 +63,7 @@ impl Req {
     /// representation.
     /// 
     /// TODO: Conver this impl and the one for Resp into a trait
-    pub fn to_components(&self) -> (MessageKey, PeerInfo, RPC) {
+    pub fn to_components(&self) -> (MessageKey, Option<PeerInfo>, Option<RPC>) {
         let rpc = RPC::from_bytes(&self.payload);
         let sender = PeerInfo::from_bytes(&self.sender);
         let id = MessageKey::from_inner(self.id);
@@ -77,7 +77,7 @@ impl Resp {
     /// representation.
     /// 
     /// TODO: Conver this impl and the one for Resp into a trait
-    pub fn to_components(&self) -> (Req, PeerInfo, RPC) {
+    pub fn to_components(&self) -> (Option<Req>, Option<PeerInfo>, Option<RPC>) {
         let rpc = RPC::from_bytes(&self.payload);
         let receiver = PeerInfo::from_bytes(&self.receiver);
         let req = Req::from_bytes(&self.request);
