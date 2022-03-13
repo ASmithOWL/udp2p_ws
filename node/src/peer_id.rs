@@ -1,7 +1,7 @@
 use crate::peer_key::Key;
 use serde::{Serialize, Deserialize};
-use utils::utils::ByteRep;
-use utils::impl_ByteRep;
+use udp2p_utils::utils::ByteRep;
+use udp2p_utils::impl_ByteRep;
 use sha256::digest_bytes;
 
 impl_ByteRep!(for PeerId);

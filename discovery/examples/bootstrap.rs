@@ -1,18 +1,18 @@
-use discovery::kad::Kademlia;
-use protocol::protocol::{Message};
-use transport::transport::Transport;
-use transport::handler::MessageHandler;
-use discovery::routing::RoutingTable;
-use node::peer_id::PeerId;
-use node::peer_info::PeerInfo;
-use node::peer_key::Key;
-use protocol::protocol::AckMessage;
+use udp2p_discovery::kad::Kademlia;
+use udp2p_protocol::protocol::{Message};
+use udp2p_transport::transport::Transport;
+use udp2p_transport::handler::MessageHandler;
+use udp2p_discovery::routing::RoutingTable;
+use udp2p_node::peer_id::PeerId;
+use udp2p_node::peer_info::PeerInfo;
+use udp2p_node::peer_key::Key;
+use udp2p_protocol::protocol::AckMessage;
 use rand::{thread_rng, Rng};
 use std::collections::{HashMap, HashSet};
 use std::env::args;
 use std::net::{SocketAddr, UdpSocket};
 use std::sync::mpsc::{channel, Receiver, Sender};
-use utils::utils::ByteRep;
+use udp2p_utils::utils::ByteRep;
 use std::thread;
 use std::time::{Duration, Instant};
 

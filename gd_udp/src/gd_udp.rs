@@ -2,8 +2,8 @@ use std::collections::{HashMap, HashSet};
 use std::net::{SocketAddr, UdpSocket};
 use std::sync::Arc;
 use std::time::{Duration, Instant};
-use protocol::protocol::{InnerKey, Packet, AddressBytes, Packets};
-use utils::utils::ByteRep;
+use udp2p_protocol::protocol::{InnerKey, Packet, AddressBytes, Packets};
+use udp2p_utils::utils::ByteRep;
 
 /// A pseudo-guaranteed deliver wrapper for UDP sockets to ensure that
 /// packets are either delivered, or are resent to the destination.

@@ -1,12 +1,12 @@
 use std::net::SocketAddr;
-use udp2p::routable::Routable;
+use udp2p_traits::routable::Routable;
 use crate::peer_id::PeerId;
 use crate::peer_key::Key;
 use serde::{Serialize, Deserialize};
-use utils::utils::Distance;
+use udp2p_utils::utils::Distance;
 use std::cmp::Ordering;
-use utils::utils::ByteRep;
-use utils::impl_ByteRep;
+use udp2p_utils::utils::ByteRep;
+use udp2p_utils::impl_ByteRep;
 
 impl_ByteRep!(for PeerInfo);
 

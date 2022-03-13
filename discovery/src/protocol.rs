@@ -1,7 +1,7 @@
 use crate::KAD_MESSAGE_LEN;
-use node::peer_info::PeerInfo;
-use node::peer_key::Key;
-use protocol::protocol::{
+use udp2p_node::peer_info::PeerInfo;
+use udp2p_node::peer_key::Key;
+use udp2p_protocol::protocol::{
     InnerKey, KadMessage, Message, MessageKey, Nodes, Peer, RPCBytes, RequestBytes, ResponseBytes,
     StoreKey, Value,
 };
@@ -13,9 +13,9 @@ use std::net::SocketAddr;
 use std::net::UdpSocket;
 use std::sync::mpsc::Sender;
 use std::sync::Arc;
-use udp2p::routable::Routable;
-use utils::impl_ByteRep;
-use utils::utils::ByteRep;
+use udp2p_traits::routable::Routable;
+use udp2p_utils::impl_ByteRep;
+use udp2p_utils::utils::ByteRep;
 
 /// Implements ByteRep trait for RPC, Req & Resp structs so they can be
 /// represented as a vector of bytes and/or returned to their struct form

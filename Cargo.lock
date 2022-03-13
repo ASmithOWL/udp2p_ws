@@ -47,33 +47,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "discovery"
-version = "0.2.0"
-dependencies = [
- "gd_udp",
- "hex",
- "node",
- "protocol",
- "rand",
- "record",
- "ritelinked",
- "serde",
- "serde_json",
- "tokio",
- "transport",
- "udp2p",
- "utils",
-]
-
-[[package]]
-name = "gd_udp"
-version = "0.2.0"
-dependencies = [
- "protocol",
- "utils",
-]
-
-[[package]]
 name = "generic-array"
 version = "0.14.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -92,21 +65,6 @@ dependencies = [
  "cfg-if",
  "libc",
  "wasi",
-]
-
-[[package]]
-name = "gossip"
-version = "0.2.0"
-dependencies = [
- "discovery",
- "node",
- "protocol",
- "rand",
- "serde",
- "serde_json",
- "transport",
- "udp2p",
- "utils",
 ]
 
 [[package]]
@@ -147,19 +105,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1b03d17f364a3a042d5e5d46b053bbbf82c92c9430c592dd4c064dc6ee997125"
 
 [[package]]
-name = "node"
-version = "0.1.0"
-dependencies = [
- "hex",
- "rand",
- "serde",
- "serde_json",
- "sha256",
- "udp2p",
- "utils",
-]
-
-[[package]]
 name = "once_cell"
 version = "1.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -190,17 +135,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c7342d5883fbccae1cc37a2353b09c87c9b0f3afd73f5fb9bba687a1f733b029"
 dependencies = [
  "unicode-xid",
-]
-
-[[package]]
-name = "protocol"
-version = "0.2.0"
-dependencies = [
- "hex",
- "rand",
- "serde",
- "serde_json",
- "utils",
 ]
 
 [[package]]
@@ -250,16 +184,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d51e9f596de227fda2ea6c84607f5558e196eeaf43c986b724ba4fb8fdf497e7"
 dependencies = [
  "rand_core",
-]
-
-[[package]]
-name = "record"
-version = "0.2.0"
-dependencies = [
- "node",
- "serde",
- "serde_json",
- "utils",
 ]
 
 [[package]]
@@ -354,26 +278,212 @@ dependencies = [
 ]
 
 [[package]]
-name = "transport"
-version = "0.2.0"
-dependencies = [
- "gd_udp",
- "hex",
- "protocol",
- "utils",
-]
-
-[[package]]
 name = "typenum"
 version = "1.15.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "dcf81ac59edc17cc8697ff311e8f5ef2d99fcbd9817b34cec66f90b6c3dfd987"
 
 [[package]]
-name = "udp2p"
+name = "udp2p_discovery"
+version = "0.2.0"
+dependencies = [
+ "hex",
+ "rand",
+ "ritelinked",
+ "serde",
+ "serde_json",
+ "tokio",
+ "udp2p_gd_udp 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "udp2p_node 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "udp2p_protocol 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "udp2p_record 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "udp2p_traits 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "udp2p_transport 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "udp2p_utils 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "udp2p_discovery"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "735e1999635b8645dc1c6c0f628ecebfcbc4af4b89ab849446f4896e917eec11"
+dependencies = [
+ "hex",
+ "rand",
+ "ritelinked",
+ "serde",
+ "serde_json",
+ "tokio",
+ "udp2p_gd_udp 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "udp2p_node 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "udp2p_protocol 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "udp2p_record 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "udp2p_traits 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "udp2p_transport 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "udp2p_utils 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "udp2p_gd_udp"
+version = "0.2.0"
+dependencies = [
+ "udp2p_protocol 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "udp2p_utils 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "udp2p_gd_udp"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3d03d1aa3f3e0fde30ac2e46321f8837f75e1f4e2d316f7c94789c9a1b1f1c85"
+dependencies = [
+ "udp2p_protocol 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "udp2p_utils 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "udp2p_gossip"
+version = "0.2.0"
+dependencies = [
+ "rand",
+ "serde",
+ "serde_json",
+ "udp2p_discovery 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "udp2p_node 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "udp2p_protocol 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "udp2p_traits 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "udp2p_transport 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "udp2p_utils 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "udp2p_node"
 version = "0.1.0"
 dependencies = [
- "utils",
+ "hex",
+ "rand",
+ "serde",
+ "serde_json",
+ "sha256",
+ "udp2p_traits 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "udp2p_utils 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "udp2p_node"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "48ffcc8f761391e16bee0bbcaed98dce1128864d7f43d977a4add6a06511e325"
+dependencies = [
+ "hex",
+ "rand",
+ "serde",
+ "serde_json",
+ "sha256",
+ "udp2p_traits 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "udp2p_utils 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "udp2p_protocol"
+version = "0.2.0"
+dependencies = [
+ "hex",
+ "rand",
+ "serde",
+ "serde_json",
+ "udp2p_utils 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "udp2p_protocol"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a42127deb159dfe886a5555497cb86864f6cfd47a9f28f6585dd8ea6fc8d0d37"
+dependencies = [
+ "hex",
+ "rand",
+ "serde",
+ "serde_json",
+ "udp2p_utils 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "udp2p_record"
+version = "0.2.0"
+dependencies = [
+ "serde",
+ "serde_json",
+ "udp2p_node 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "udp2p_utils 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "udp2p_record"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a9a53c9fec8bc26ea17d2a3a2192900111cbdc34e7012997b0bd6de95fe2d09b"
+dependencies = [
+ "serde",
+ "serde_json",
+ "udp2p_node 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "udp2p_utils 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "udp2p_traits"
+version = "0.1.0"
+dependencies = [
+ "udp2p_utils 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "udp2p_traits"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b7daa82d1606f2f70a458940635175609dc8727b23ee7844d008c4bbd9fbd0da"
+dependencies = [
+ "udp2p_utils 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "udp2p_transport"
+version = "0.2.0"
+dependencies = [
+ "hex",
+ "udp2p_gd_udp 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "udp2p_protocol 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "udp2p_utils 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "udp2p_transport"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2bce8c31863f219ef68cbb53312dce7677902c580e798132231087a0583a8528"
+dependencies = [
+ "hex",
+ "udp2p_gd_udp 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "udp2p_protocol 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "udp2p_utils 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "udp2p_utils"
+version = "0.2.0"
+dependencies = [
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "udp2p_utils"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f1fac5e6c6c11bb7c929eb758edc232800f2452c11ca60692918de74a1c6f074"
+dependencies = [
+ "serde",
+ "serde_json",
 ]
 
 [[package]]
@@ -381,14 +491,6 @@ name = "unicode-xid"
 version = "0.2.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8ccb82d61f80a663efe1f787a51b16b5a51e3314d6ac365b08639f52387b33f3"
-
-[[package]]
-name = "utils"
-version = "0.2.0"
-dependencies = [
- "serde",
- "serde_json",
-]
 
 [[package]]
 name = "version_check"

@@ -1,8 +1,8 @@
 use std::net::SocketAddr;
-use utils::impl_ByteRep;
-use utils::utils::ByteRep;
+use udp2p_utils::impl_ByteRep;
+use udp2p_utils::utils::ByteRep;
 use serde::{Serialize, Deserialize};
-use protocol::protocol::{InnerKey, MessageData};
+use udp2p_protocol::protocol::{InnerKey, MessageData};
 
 impl_ByteRep!(for GossipMessage);
 

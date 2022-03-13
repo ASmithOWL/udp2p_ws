@@ -1,19 +1,19 @@
 use crate::protocol::{Req, Resp, RPC};
 use crate::routing::RoutingTable;
 use crate::{DEFAULT_N_PEERS};
-use node::peer_info::PeerInfo;
-use node::peer_key::Key;
-use protocol::protocol::{
+use udp2p_node::peer_info::PeerInfo;
+use udp2p_node::peer_key::Key;
+use udp2p_protocol::protocol::{
     Header, KadMessage, Message, MessageKey, Nodes, Peer, RequestBytes, ResponseBytes, Value,
 };
 use std::collections::{HashMap, HashSet, VecDeque};
 use std::net::SocketAddr;
 use std::sync::mpsc::{channel, Receiver, Sender};
 use std::time::{Duration, Instant};
-use udp2p::routable::Routable;
-use utils::utils::timestamp_now;
-use utils::utils::ByteRep;
-use utils::utils::Distance;
+use udp2p_traits::routable::Routable;
+use udp2p_utils::utils::timestamp_now;
+use udp2p_utils::utils::ByteRep;
+use udp2p_utils::utils::Distance;
 
 /// The kademlia is the basic struct used for Peer Discovery in this crate
 /// Kademlia has a RoutingTable, a to_transport sender and from transport receiver

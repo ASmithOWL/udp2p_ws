@@ -1,21 +1,21 @@
 use std::net::{SocketAddr, UdpSocket};
 use std::sync::mpsc::{Sender, Receiver, channel};
-use protocol::protocol::{AckMessage, Message, MessageKey, Header};
-use node::peer_id::PeerId;
-use node::peer_key::Key;
-use node::peer_info::PeerInfo;
-use discovery::kad::Kademlia;
-use discovery::routing::RoutingTable;
-use transport::transport::Transport;
-use transport::handler::MessageHandler;
+use udp2p_protocol::protocol::{AckMessage, Message, MessageKey, Header};
+use udp2p_node::peer_id::PeerId;
+use udp2p_node::peer_key::Key;
+use udp2p_node::peer_info::PeerInfo;
+use udp2p_discovery::kad::Kademlia;
+use udp2p_discovery::routing::RoutingTable;
+use udp2p_transport::transport::Transport;
+use udp2p_transport::handler::MessageHandler;
 use std::collections::{HashMap, HashSet};
 use std::thread;
 use std::env::args;
-use gossip::gossip::{GossipConfig, GossipService};
-use gossip::protocol::GossipMessage;
+use udp2p_gossip::gossip::{GossipConfig, GossipService};
+use udp2p_gossip::protocol::GossipMessage;
 use rand::{thread_rng, Rng};
 use std::time::{Duration, Instant};
-use utils::utils::ByteRep;
+use udp2p_utils::utils::ByteRep;
 
 
 fn main() {

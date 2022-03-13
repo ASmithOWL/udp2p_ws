@@ -1,9 +1,9 @@
 #![allow(unused_imports)]
 use std::collections::{BTreeMap, HashMap, HashSet};
 use std::mem;
-use utils::utils::timestamp_now;
-use node::peer_id::PeerId;
-use node::peer_info::PeerInfo;
+use udp2p_utils::utils::timestamp_now;
+use udp2p_node::peer_id::PeerId;
+use udp2p_node::peer_info::PeerInfo;
 use std::error::Error;
 
 /// A trait applied to any kind of key value storing

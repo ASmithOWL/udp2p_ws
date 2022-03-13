@@ -1,15 +1,15 @@
 #![allow(dead_code)]
 use crate::protocol::GossipMessage;
-use discovery::kad::Kademlia;
-use protocol::protocol::{Message, MessageKey};
+use udp2p_discovery::kad::Kademlia;
+use udp2p_protocol::protocol::{Message, MessageKey};
 use std::collections::{HashMap, HashSet};
 use std::net::SocketAddr;
 use std::sync::mpsc::{Receiver, Sender};
 use std::time::Duration;
-use utils::utils::ByteRep;
+use udp2p_utils::utils::ByteRep;
 use std::time::Instant;
 use rand::Rng;
-use udp2p::routable::Routable;
+use udp2p_traits::routable::Routable;
 
 /// A configuration struct for the user to pass different
 /// parameters into the gossip struct.

@@ -1,15 +1,15 @@
 use crate::{MAX_BUCKETS, MAX_BUCKET_LEN, REFRESH_INTEVAL};
-use node::peer_info::PeerInfo;
-use node::peer_key::Key;
-use utils::utils::Distance;
+use udp2p_node::peer_info::PeerInfo;
+use udp2p_node::peer_key::Key;
+use udp2p_utils::utils::Distance;
 use std::hash::Hash;
 use std::{cmp, mem};
-use utils::utils::{timestamp_now};
+use udp2p_utils::utils::{timestamp_now};
 use std::collections::{BTreeMap, HashMap};
 use ritelinked::LinkedHashMap;
-use node::peer_id::PeerId;
+use udp2p_node::peer_id::PeerId;
 use std::net::SocketAddr;
-use protocol::protocol::InnerKey;
+use udp2p_protocol::protocol::InnerKey;
 
 /// The derivative data type used to maintain clusters of peers
 /// in the routing table with the same xor prefix to the local peer.

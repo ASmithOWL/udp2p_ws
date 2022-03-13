@@ -1,7 +1,7 @@
 use serde::{Serialize, Deserialize};
-use utils::utils::Distance;
-use utils::utils::ByteRep;
-use utils::impl_ByteRep;
+use udp2p_utils::utils::Distance;
+use udp2p_utils::utils::ByteRep;
+use udp2p_utils::impl_ByteRep;
 use rand;
 use std::fmt::Binary;
 

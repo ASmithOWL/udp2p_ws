@@ -1,5 +1,5 @@
 use std::net::SocketAddr;
-use utils::utils::Distance;
+use udp2p_utils::utils::Distance;
 
 pub trait Routable: Distance {
     type Id;

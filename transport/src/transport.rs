@@ -1,8 +1,8 @@
-use gd_udp::gd_udp::GDUdp;
-use protocol::protocol::{packetize, AckMessage, Header, Message, MessageKey};
+use udp2p_gd_udp::gd_udp::GDUdp;
+use udp2p_protocol::protocol::{packetize, AckMessage, Header, Message, MessageKey};
 use std::net::{SocketAddr, UdpSocket};
 use std::sync::mpsc::Receiver;
-use utils::utils::ByteRep;
+use udp2p_utils::utils::ByteRep;
 
 /// A struct for managing the transport layer in a p2p network
 /// contains a GDUdp struct for sending reliable messages over UDP

@@ -1,10 +1,10 @@
 #![allow(dead_code)]
 use std::sync::mpsc::Sender;
-use protocol::protocol::{AckMessage, Message, KadMessage, Packet, Header, InnerKey};
+use udp2p_protocol::protocol::{AckMessage, Message, KadMessage, Packet, Header, InnerKey};
 use std::net::{SocketAddr, UdpSocket};
-use gd_udp::gd_udp::GDUdp;
+use udp2p_gd_udp::gd_udp::GDUdp;
 use std::collections::HashMap;
-use utils::utils::ByteRep;
+use udp2p_utils::utils::ByteRep;
 
 /// The core struct of the handler module
 /// Contains an outgoing message sender

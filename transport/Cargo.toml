@@ -2,11 +2,16 @@
 name = "udp2p_transport"
 version = "0.2.0"
 edition = "2021"
+license = "MIT"
+authors = ["Andrew N. Smith <asmith@vrrb.io>"]
+description = "The peer discovery portion of the udp2p  library, used for discovering peers in a peer to peer network"
+documentation = "https://doc.rs/udp2p_transport/0.2.0/udp2p_transport"
+readme = "README.md"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-gd_udp = { path = "../gd_udp" }
-protocol = { path = "../protocol" }
-utils = { path = "../utils" }
+udp2p_gd_udp = "0.2.0"
+udp2p_protocol = "0.2.0"
+udp2p_utils = "0.2.0"
 hex = "0.4.3"

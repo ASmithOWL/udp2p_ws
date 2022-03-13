@@ -16,12 +16,12 @@ mod tests {
 
     use crate::kad::Kademlia;
     use crate::routing::RoutingTable;
-    use node::peer_id::PeerId;
-    use node::peer_key::Key;
-    use node::peer_info::PeerInfo;
+    use udp2p_node::peer_id::PeerId;
+    use udp2p_node::peer_key::Key;
+    use udp2p_node::peer_info::PeerInfo;
     use rand::Rng;
     use std::net::SocketAddr;
-    use utils::utils::Distance;
+    use udp2p_utils::utils::Distance;
     use std::cmp;
 
     fn setup(n_peers: usize) -> (RoutingTable, PeerInfo, Vec<PeerInfo>) {
