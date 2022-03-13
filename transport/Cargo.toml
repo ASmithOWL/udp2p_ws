@@ -1,5 +1,5 @@
 [package]
-name = "transport"
+name = "udp2p_transport"
 version = "0.2.0"
 edition = "2021"
 

@@ -1,5 +1,5 @@
 [package]
-name = "udp2p"
+name = "udp2p_traits"
 version = "0.1.0"
 edition = "2021"
 

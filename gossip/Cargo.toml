@@ -1,5 +1,5 @@
 [package]
-name = "gossip"
+name = "udp2p_gossip"
 version = "0.2.0"
 edition = "2021"
 

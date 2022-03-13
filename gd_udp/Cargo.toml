@@ -1,5 +1,5 @@
 [package]
-name = "gd_udp"
+name = "udp2p_gd_udp"
 version = "0.2.0"
 edition = "2021"
 

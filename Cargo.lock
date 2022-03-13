@@ -48,7 +48,7 @@ dependencies = [
 
 [[package]]
 name = "discovery"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "gd_udp",
  "hex",
@@ -67,7 +67,7 @@ dependencies = [
 
 [[package]]
 name = "gd_udp"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "protocol",
  "utils",
@@ -96,7 +96,7 @@ dependencies = [
 
 [[package]]
 name = "gossip"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "discovery",
  "node",
@@ -194,7 +194,7 @@ dependencies = [
 
 [[package]]
 name = "protocol"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "hex",
  "rand",
@@ -254,7 +254,7 @@ dependencies = [
 
 [[package]]
 name = "record"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "node",
  "serde",
@@ -355,7 +355,7 @@ dependencies = [
 
 [[package]]
 name = "transport"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "gd_udp",
  "hex",
@@ -384,7 +384,7 @@ checksum = "8ccb82d61f80a663efe1f787a51b16b5a51e3314d6ac365b08639f52387b33f3"
 
 [[package]]
 name = "utils"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "serde",
  "serde_json",

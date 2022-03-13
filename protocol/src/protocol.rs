@@ -10,6 +10,12 @@ impl_ByteRep!(for Packet, AckMessage, Message, MessageKey, Header, KadMessage);
 /// To make it easier to distinguish what the byte vector
 /// is intending to represent, we have some custom types
 /// used instead of passsing in a Vec<u8> alone.
+// TODO: Convert Vec<u8> to &'static [u8]
+// TODO convert Vec<Vec<u8>> to &'statis[&'static [u8]]
+//      REASON:
+//          Vectors take up double their allocates space
+//          wheras arrays do not, this will result in significant memory gains
+
 pub type Peer = Vec<u8>;
 pub type RequestBytes = Vec<u8>;
 pub type ResponseBytes = Vec<u8>;
@@ -31,6 +37,54 @@ pub trait Packetize<'a>: ByteRep<'a> {
     fn packetize(&self) -> Vec<Packet>;
 }
 
+#[macro_export]
+macro_rules! packetize {
+    ($bytes:expr, $id:expr, $ret:expr, $size:expr) => {
+        if $size < 32500 {
+            let hex_string: ::hex::encode(&$bytes);
+            let packet = ::protocol::Packet {
+                id: $id,
+                n: 1,
+                total_n: 1,
+                bytes: hex_string,
+                ret: $ret
+            };
+            return vec![packet]
+        } else {
+            let mut n_packets = $size / 32500;
+            if $size % 32500 != 0 {
+                n_packets += 1;
+            }
+            let mut start = 0;
+            let mut end = 32500;
+            let mut packets = vec![];
+
+            for n in 0..n_packets {
+                if n == n_packets-1 {
+                    packets.push(bytes[start..].to_vec());
+                } else {
+                    packets.push(bytes[start..end].to_vec());
+                    start = end;
+                    end += 32500;
+                }
+            }
+            
+            let packets: Packets = packets.iter().enumerate().map(|(idx, packet)| {
+                let hex_string = hex::encode(&packet);
+                ::protocol::Packet {
+                    id,
+                    n: idx + 1,
+                    total_n: packets.len(),
+                    bytes: hex_string,
+                    ret
+                }
+            }).collect();
+
+            packets
+        }
+    };
+}
+
 /// A function that returns a vector of *n* Packet(s) based on the size of
 /// the MessageData passed to it.
 /// 
@@ -43,6 +97,8 @@ pub trait Packetize<'a>: ByteRep<'a> {
 /// TODO:
 /// 
 /// Build a macro for this
+/// 
+
 pub fn packetize(bytes: MessageData, id: InnerKey, ret: ReturnReceipt) -> Packets {
     if bytes.len() < 32500 {
         let hex_string = hex::encode(&bytes);

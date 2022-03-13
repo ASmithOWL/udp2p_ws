@@ -76,7 +76,7 @@ fn main() {
         let bootstrap: SocketAddr = to_dial.parse().expect("Unable to parse address");
         kad.bootstrap(&bootstrap);
     } else {
-        kad.add_peer(info.as_bytes())
+        kad.add_peer(info.as_bytes().unwrap())
     }
 
     loop {
