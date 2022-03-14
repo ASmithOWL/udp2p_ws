@@ -19,7 +19,7 @@ use udp2p_utils::utils::ByteRep;
 
 
 fn main() {
-        // Bind a UDP Socket to a Socket Address with a random port between
+    // Bind a UDP Socket to a Socket Address with a random port between
     // 9292 and 19292 on the localhost address.
     let port: usize = thread_rng().gen_range(9292..19292);
     let addr: SocketAddr = format!("127.0.0.1:{}", port)

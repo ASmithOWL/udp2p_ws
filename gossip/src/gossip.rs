@@ -10,6 +10,7 @@ use udp2p_utils::utils::ByteRep;
 use std::time::Instant;
 use rand::Rng;
 use udp2p_traits::routable::Routable;
+use log::info;
 
 /// A configuration struct for the user to pass different
 /// parameters into the gossip struct.
@@ -41,8 +42,8 @@ pub struct GossipConfig {
 pub struct GossipService {
     address: SocketAddr,
     to_gossip_rx: Receiver<(SocketAddr, Message)>,
-    to_transport_tx: Sender<(SocketAddr, Message)>,
-    to_app_tx: Sender<GossipMessage>,
+    pub to_transport_tx: Sender<(SocketAddr, Message)>,
+    pub to_app_tx: Sender<GossipMessage>,
     pub kad: Kademlia,
     cache: HashMap<MessageKey, (Message, Instant)>,
     config: GossipConfig,
@@ -267,6 +268,7 @@ impl GossipService {
         let res = self.to_gossip_rx.try_recv();
         match res {
             Ok((src, msg)) => {
+                info!("Message Received from {:?}:\n{:?}", src, msg);
                 self.handle_message(&src, &msg);
             }
             Err(_) => {}
