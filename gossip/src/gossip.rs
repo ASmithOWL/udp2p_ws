@@ -251,10 +251,9 @@ impl GossipService {
         if let Some(message) = GossipMessage::from_bytes(&msg.msg){
             if !self.cache.contains_key(&MessageKey::from_inner(message.id)) {
                 if *src != self.address {
-                    // TODO: Only print if the protocol id is "chat"
-                    println!("Received message from {:?}", src);
-                    let string = String::from_utf8_lossy(&message.data);
-                    println!("{:?}", string);
+                    if let Err(e) = self.to_app_tx.send(message.clone()) {
+                        info!("Error sending message to application layer: {:?}", e)
+                    }
                 }
                 let key = MessageKey::from_inner(message.id);
                 self.publish(src, msg.clone());
@@ -268,7 +267,6 @@ impl GossipService {
         let res = self.to_gossip_rx.try_recv();
         match res {
             Ok((src, msg)) => {
-                info!("Message Received from {:?}:\n{:?}", src, msg);
                 self.handle_message(&src, &msg);
             }
             Err(_) => {}

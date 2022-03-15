@@ -106,7 +106,7 @@ impl Kademlia {
         let local_info = self.routing_table.local_info.clone();
         let (id, message) = self.prepare_find_node_message(local_info, None);
         if let Err(e) = self.to_transport.send((bootstrap.clone(), message)) {
-            println!("Error sending to transport");
+            println!("Error sending to transport: {:?}", e);
         }
         self.add_peer(self.routing_table.local_info.clone().as_bytes().unwrap());
     }

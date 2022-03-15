@@ -1,11 +1,11 @@
 [package]
 name = "udp2p_gossip"
-version = "0.2.0"
+version = "0.2.5"
 edition = "2021"
 license = "MIT"
 authors = ["Andrew N. Smith <asmith@vrrb.io>"]
 description = "The peer discovery package of the udp2p library, used for discovering peers in a peer to peer network"
-documentation = "https://doc.rs/udp2p_gossip/0.2.0/udp2p_gossip"
+documentation = "https://doc.rs/udp2p_gossip/0.2.1/udp2p_gossip"
 readme = "README.md"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -16,8 +16,9 @@ udp2p_node = "0.1.0"
 udp2p_utils = "0.2.0"
 serde = { version = "1.0.133", features = ["derive"] }
 serde_json = "1.0.75"
-udp2p_discovery = "0.2.0"
+udp2p_discovery = "0.2.2"
 rand = "0.8.4"
-udp2p_transport = "0.2.0"
+udp2p_transport = "0.2.2"
 udp2p_traits = "0.1.0"
 log = "0.4.14"
+public-ip = "0.2.1"

@@ -1,6 +1,6 @@
 [package]
 name = "udp2p_transport"
-version = "0.2.0"
+version = "0.2.2"
 edition = "2021"
 license = "MIT"
 authors = ["Andrew N. Smith <asmith@vrrb.io>"]
@@ -11,7 +11,8 @@ readme = "README.md"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-udp2p_gd_udp = "0.2.0"
+udp2p_gd_udp = "0.2.1"
 udp2p_protocol = "0.2.0"
 udp2p_utils = "0.2.0"
 hex = "0.4.3"
+log = "0.4.14"

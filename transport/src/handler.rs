@@ -5,6 +5,7 @@ use std::net::{SocketAddr, UdpSocket};
 use udp2p_gd_udp::gd_udp::GDUdp;
 use std::collections::HashMap;
 use udp2p_utils::utils::ByteRep;
+use log::info;
 
 /// The core struct of the handler module
 /// Contains an outgoing message sender
@@ -61,6 +62,7 @@ impl MessageHandler {
         let res = sock.recv_from(buf);
         match res {
             Ok((amt, src)) => {
+                info!("Received {:?} bytes from {:?}", amt, src);
                 if let Some(packet) = self.process_packet(local, buf.to_vec(), amt, src) {
                     self.insert_packet(packet, src)
                 }

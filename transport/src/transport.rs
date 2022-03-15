@@ -59,7 +59,6 @@ impl Transport {
     /// 
     pub fn outgoing_msg(&mut self, sock: &UdpSocket) {
         let res = self.om_rx.try_recv();
-        sock.set_nonblocking(true).unwrap();
         match res {
             Ok((src, msg)) => match msg.head {
                 Header::Ack => {

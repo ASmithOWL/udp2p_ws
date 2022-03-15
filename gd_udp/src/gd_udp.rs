@@ -4,6 +4,7 @@ use std::sync::Arc;
 use std::time::{Duration, Instant};
 use udp2p_protocol::protocol::{InnerKey, Packet, AddressBytes, Packets};
 use udp2p_utils::utils::ByteRep;
+use log::info;
 
 /// A pseudo-guaranteed deliver wrapper for UDP sockets to ensure that
 /// packets are either delivered, or are resent to the destination.
@@ -164,8 +165,11 @@ impl GDUdp {
             self.outbox.insert(packet.id, map);
         }
         if let Some(bytes) = packet.as_bytes() {
-            sock.send_to(&bytes, peer)
-                .expect("Error sending packet to peer");
+            if let Err(e) = sock.send_to(&bytes, peer) {
+                info!("Error sending packet to {:?}:\n{:?}", peer, e)
+            } else {
+                info!("Sent packet {:?} to {:?}", &packet.id, peer)
+            }
         }
     }
 

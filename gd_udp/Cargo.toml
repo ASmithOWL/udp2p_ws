@@ -1,6 +1,6 @@
 [package]
 name = "udp2p_gd_udp"
-version = "0.2.0"
+version = "0.2.2"
 edition = "2021"
 license = "MIT"
 authors = ["Andrew N. Smith <asmith@vrrb.io>"]
@@ -13,3 +13,4 @@ readme = "README.md"
 [dependencies]
 udp2p_protocol = "0.2.0"
 udp2p_utils = "0.2.0"
+log = "0.4.14"
